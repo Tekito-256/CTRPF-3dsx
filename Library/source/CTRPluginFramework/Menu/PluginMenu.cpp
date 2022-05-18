@@ -137,6 +137,11 @@ namespace CTRPluginFramework
         return (g_runningInstance);//(const_cast<PluginMenu &>(*g_runningInstance));
     }
 
+    void PluginMenu::ForceExit(void)
+    {
+        PluginMenuImpl::ForceExit();
+    }
+
 	void PluginMenu::ForceOpen(void)
 	{
 		PluginMenuImpl::ForceOpen();

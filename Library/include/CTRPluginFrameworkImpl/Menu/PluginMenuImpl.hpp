@@ -87,6 +87,7 @@ namespace CTRPluginFramework
         std::vector<CallbackPointer>     _callbacks;
         std::vector<CallbackPointer>     _callbacksTrashBin;
         bool                        _forceOpen;
+        bool                        _forceExit;
         bool                        _hexEditorState;
     };
 }

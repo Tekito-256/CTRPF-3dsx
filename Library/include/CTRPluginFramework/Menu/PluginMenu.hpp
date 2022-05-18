@@ -124,6 +124,11 @@ namespace CTRPluginFramework
         static PluginMenu   *GetRunningInstance(void);
 
         /**
+         * \brief Forces the exiting of the menu
+         */
+        static void ForceExit(void);
+
+        /**
          * \brief Forces the opening of the menu
          */
         static void ForceOpen(void);
