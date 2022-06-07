@@ -129,7 +129,7 @@ namespace CTRPluginFramework
     u32     ScreenImpl::Acquire(bool fade)
     {
         // Fetch game frame buffers & check validity
-        if (ImportFromGsp())
+        /*if (ImportFromGsp())
             return -1;
 
         // Copy images and convert to RGB565 to ctrpf's frame buffer (0)
@@ -165,7 +165,7 @@ namespace CTRPluginFramework
         // Apply current frame buffers
         GSP::SetFrameBufferInfo(_frameBufferInfo, !_isTopScreen, true);
 
-        _isGspAcquired = true;
+        _isGspAcquired = true;*/
 
         return 0;
     }
@@ -204,6 +204,8 @@ namespace CTRPluginFramework
         _rowSize = _stride / _bytesPerPixel;
         _leftFrameBuffers[0] = left;
         _rightFrameBuffers[0] = right;
+        _leftFrameBuffers[1] = left;
+        _rightFrameBuffers[1] = right;
 
         _gameFrameBufferInfo.header.screen = 0;
         GSP::FrameBufferInfo& fbInfo = _gameFrameBufferInfo.fbInfo[0];
@@ -218,10 +220,10 @@ namespace CTRPluginFramework
 
     void    ScreenImpl::Flush(void)
     {
-        u32 size = GetFrameBufferSize();
+        //u32 size = GetFrameBufferSize();
 
         // Flush currentBuffer
-        svcFlushProcessDataCache(CUR_PROCESS_HANDLE, (u32)GetLeftFrameBuffer(), size);
+        //svcFlushProcessDataCache(CUR_PROCESS_HANDLE, (u32)GetLeftFrameBuffer(), size);
     }
 
     void    ScreenImpl::Invalidate(void)
@@ -229,7 +231,7 @@ namespace CTRPluginFramework
         u32 size = GetFrameBufferSize();
 
         // Invalidate currentBuffer
-        svcInvalidateProcessDataCache(CUR_PROCESS_HANDLE, (u32)GetLeftFrameBuffer(), size);
+        //svcInvalidateProcessDataCache(CUR_PROCESS_HANDLE, (u32)GetLeftFrameBuffer(), size);
     }
 
     void    ScreenImpl::Clear(bool applyFlagForCurrent)
@@ -318,7 +320,7 @@ namespace CTRPluginFramework
 
     void    ScreenImpl::SwitchFrameBuffers(bool game)
     {
-        if (game)
+        /*if (game)
         {
             Top->Release();
             Bottom->Release();
@@ -334,7 +336,8 @@ namespace CTRPluginFramework
             GSP::WaitBufferSwapped(3);
             Top->_isGspAcquired = true;
             Bottom->_isGspAcquired = true;
-        }
+        }*/
+
     }
 
     void    ScreenImpl::ApplyFading(void)
@@ -379,11 +382,13 @@ namespace CTRPluginFramework
 
     void    ScreenImpl::SwapBuffer(void)
     {
-        svcFlushDataCacheRange(GetLeftFrameBuffer(), GetFrameBufferSize());
+        //svcFlushDataCacheRange(GetLeftFrameBuffer(), GetFrameBufferSize());
 
         GSP::SwapBuffer(!_isTopScreen);
 
-        _currentBuffer = !_currentBuffer;
+        //_currentBuffer = !_currentBuffer;
+
+        GSP::WaitBufferSwapped(3);
     }
 
     void    ScreenImpl::SwapBufferInternal(void)

@@ -143,7 +143,7 @@ namespace CTRPluginFramework
         _cores[1].thread.Start(&_cores[1]);
 
         // Create handler on Core2 & Core3 (N3DS only)
-        if (!System::IsNew3DS())
+        if (System::IsNew3DS())
         {
             _cores[2].state = Core::Exit;
             _cores[3].state = Core::Exit;

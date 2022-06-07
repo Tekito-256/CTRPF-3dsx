@@ -8,7 +8,6 @@
 #include "CTRPluginFrameworkImpl/System/Services/Gsp.hpp"
 #include "CTRPluginFrameworkImpl/Sound.hpp"
 #include "csvc.h"
-#include "plgldr.h"
 
 #define PA_PTR(addr)            (void *)((u32)(addr) | 1 << 31)
 #define REG32(addr)             (*(vu32 *)(PA_PTR(addr)))
@@ -71,7 +70,7 @@ static Hook         g_onLoadCroHook;
 static Hook         g_onSharedMemMapHook;
 static LightLock    g_onLoadCroLock;
 
-void abort(void)
+/*void abort(void)
 {
     if (CTRPluginFramework::System::OnAbort)
         CTRPluginFramework::System::OnAbort();
@@ -82,7 +81,7 @@ void abort(void)
 
     CTRPluginFramework::ThreadExit();
     while (true);
-}
+}*/
 
 static void    ExecuteLoopOnEvent(void)
 {
@@ -171,7 +170,7 @@ namespace CTRPluginFramework
         }
         else
         {
-            char path[255] = {0};
+            /*char path[255] = {0};
 
             PLGLDR__GetPluginPath(path);
             for (u32 i = 254; i > 0; --i)
@@ -180,8 +179,8 @@ namespace CTRPluginFramework
                     continue;
                 path[i] = 0;
                 break;
-            }
-            Directory::ChangeWorkingDirectory(path);
+            }*/
+            Directory::ChangeWorkingDirectory("/");
         }
     }
 
@@ -197,63 +196,63 @@ namespace CTRPluginFramework
     void    KeepThreadMain(void *arg UNUSED)
     {
         // Initialize the synchronization subsystem
-        __sync_init();
+        //__sync_init();
 
         // Initialize newlib's syscalls
-        __system_initSyscalls();
+        //__system_initSyscalls();
 
         // Init heap and newlib's syscalls
-        initLib();
+        //initLib();
 
         // Initialize services
-        srvInit();
         acInit();
         amInit();
-        fsInit();
-        hidInitFake();
+        //fsInit();
         cfguInit();
         ncsndInit(false);
-        plgLdrInit();
+        //plgLdrInit();
 
         // Set cwav VA to PA function
         SoundEngineImpl::Initializelibcwav();
         SoundEngineImpl::SetVaToPaConvFunction([](const void* addr) {return svcConvertVAToPA(addr, false);});
+		
 
         // Initialize Kernel stuff
         Kernel::Initialize();
 
         // Init Framework's system constants
         SystemImpl::Initialize();
-
+		
         // Initialize Globals settings
         InitializeRandomEngine();
 
         // Init Process info
         ProcessImpl::Initialize();
-
+		
         // Init Screen
         ScreenImpl::Initialize();
-
+		
         // Init default settings
         FwkSettings &settings = FwkSettings::Get();
 
         settings.ThreadPriority = 0x30;
         settings.AllowActionReplay = true;
         settings.AllowSearchEngine = true;
-        settings.WaitTimeToBoot = Seconds(5.f);
+        settings.WaitTimeToBoot = Seconds(1.f);
         settings.TryLoadSDSounds = true;
+        settings.CachedDrawMode = true;
 
         // Set default theme
         FwkSettings::SetThemeDefault();
-
+		
         // Init scheduler
         Scheduler::Initialize();
-
+		
         // Init OSD hook
         OSDImpl::_Initialize();
 
         // Install CRO hook
-        {
+        /*{
             const std::vector<u32> LoadCroPattern =
             {
                 0xE92D5FFF, 0xE28D4038, 0xE89407E0, 0xE28D4054,
@@ -261,12 +260,6 @@ namespace CTRPluginFramework
                 0xE5A4C080, 0xE284C028, 0xE584500C, 0xE584A020
             };
 
-            /*const std::vector<u32> UnloadCroPattern =
-            {
-                0xE92D4070, 0xEE1D4F70, 0xE59F502C, 0xE3A0C000,
-                0xE5A45080, 0xE2846004, 0xE5840014, 0xE59F001C,
-                0xE886100E, 0xE5900000, 0xEF000032, 0xE2001102
-            };*/
 
             // TODO: the new plugin system make this useless
             u32     loadCroAddress = Utils::Search<u32>(0x00100000, Process::GetTextSize(), LoadCroPattern);
@@ -277,10 +270,10 @@ namespace CTRPluginFramework
                 g_onLoadCroHook.Initialize(loadCroAddress, (u32)LoadCROHooked);
                 g_onLoadCroHook.Enable();
             }
-        }
+        }*/
 
         // Install svcMapMemoryBlock hook
-        {
+        /*{
             u32 svcMapMemoryBlockAddr = 0x00100000 - 4;
             do
             {
@@ -300,7 +293,7 @@ namespace CTRPluginFramework
                     }
                 }
             } while (svcMapMemoryBlockAddr);
-        }
+        }*/
 
         // Init sdmc & paths
         InitFS();
@@ -310,17 +303,6 @@ namespace CTRPluginFramework
 
         // Patch process before it starts & let the dev init some settings
         PatchProcess(settings);
-
-        // Init hid properly depending on the settings
-        if (settings.UseGameHidMemory)
-        {
-            // Check the svcMapMemoryBlock hook was installed properly
-            if (!g_onSharedMemMapHook.IsEnabled())
-                abort();
-        } else {
-            hidExitFake();
-            hidInit();
-        }
 
         // Init menu sounds.
         SoundEngineImpl::InitializeMenuSounds();
@@ -334,35 +316,31 @@ namespace CTRPluginFramework
         // Check threads priorities
         settings.ThreadPriority = std::min(settings.ThreadPriority, (u32)0x3E);
 
-        if (GSP::Initialize())
-        {
-            ScreenImpl::Top->Flash((Color&)Color::Yellow);
-            abort();
-        }
-
         // Wait for the required time
         Sleep(settings.WaitTimeToBoot);
 
         svcCreateEvent(&g_keepEvent, RESET_ONESHOT);
 
         // Create plugin's main thread
-        g_mainThread.Start(nullptr);
+        //g_mainThread.Start(nullptr);
+        ThreadInit(nullptr);
 
         // Reduce priority
-        while (R_FAILED(svcSetThreadPriority(g_keepThreadHandle, settings.ThreadPriority - 1)));
+        //while (R_FAILED(svcSetThreadPriority(g_keepThreadHandle, settings.ThreadPriority - 1)));
 
         // Wait until Main Thread finished all it's initializing
-        svcWaitSynchronization(g_keepEvent, U64_MAX);
-        svcCloseHandle(g_keepEvent);
+        //svcWaitSynchronization(g_keepEvent, U64_MAX);
+        //svcCloseHandle(g_keepEvent);
 
-        Handle memLayoutChanged;
+        //Handle memLayoutChanged;
 
-        svcControlProcess(CUR_PROCESS_HANDLE, PROCESSOP_GET_ON_MEMORY_CHANGE_EVENT, (u32)&memLayoutChanged, 0);
+        //svcControlProcess(CUR_PROCESS_HANDLE, PROCESSOP_GET_ON_MEMORY_CHANGE_EVENT, (u32)&memLayoutChanged, 0);
         while (true)
         {
-            if (svcWaitSynchronization(memLayoutChanged, 100000000ULL) == 0x09401BFE) // 0.1s
+			    svcSleepThread(100000000ULL);
+            //if (svcWaitSynchronization(memLayoutChanged, 100000000ULL) == 0x09401BFE) // 0.1s
             {
-                s32 event = PLGLDR__FetchEvent();
+                /*s32 event = PLGLDR__FetchEvent();
 
                 if (event == PLG_SLEEP_ENTRY)
                 {
@@ -440,7 +418,7 @@ namespace CTRPluginFramework
 
                     // This function do not return and exit the thread
                     PLGLDR__Reply(event);
-                }
+                }*/
                 continue;
             }
             // Memory layout changed, update memory
@@ -454,11 +432,10 @@ namespace CTRPluginFramework
 
     // Initialize most subsystem / Global variables
     void    Initialize(void)
-    {
+    {      
         // Init sysfont
         Font::Initialize();
         {
-            // If /cheats/ doesn't exists, create it
             const char *dirpath = "/cheats";
             if (!Directory::IsExists(dirpath))
                 Directory::Create(dirpath);
@@ -549,24 +526,22 @@ namespace CTRPluginFramework
     extern "C"
     int   __entrypoint(int arg)
     {
-        // Call early callback, with pointer to the 2 saved instructions
-        if (EarlyCallback)
-            EarlyCallback((u32*)arg);
-
-        // Set ProcessImpl::MainThreadTls
         ProcessImpl::MainThreadTls = (u32)getThreadLocalStorage();
-        // Set exception handlers
-        ProcessImpl::EnableExceptionHandlers();
 
-        // Create event
-        svcCreateEvent(&g_continueGameEvent, RESET_ONESHOT);
-        // Start ctrpf's primary thread
-        svcCreateThread(&g_keepThreadHandle, KeepThreadMain, arg, (u32 *)&keepThreadStack[0x1000], 0x1A, 0);
-        // Wait until basic initialization has been made before returning to game
-        svcWaitSynchronization(g_continueGameEvent, U64_MAX);
-        // Close the event
-        svcCloseHandle(g_continueGameEvent);
+        KeepThreadMain(NULL);
 
         return 0;
     }
+}
+
+extern "C"
+int main(int argc, char* argv[])
+{
+  gfxInitDefault();
+  memset(gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 255, 400 * 240 * 3);
+  memset(gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL), 255, 320 * 240 * 3);
+  CTRPluginFramework::OSDImpl::Swap();
+  CTRPluginFramework::__entrypoint(NULL);
+  gfxExit();
+  return 0;
 }

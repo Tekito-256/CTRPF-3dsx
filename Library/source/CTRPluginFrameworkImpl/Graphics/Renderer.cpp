@@ -79,12 +79,12 @@ namespace CTRPluginFramework
         ScreenImpl::Bottom->SwapBuffer();
 
         GSP::WaitBufferSwapped(3);
+
         if (copy)
         {
             ScreenImpl::Top->Copy();
             ScreenImpl::Bottom->Copy();
         }
-
     }
 
     void    Renderer::MenuSelector(int posX, int posY, int width, int height)

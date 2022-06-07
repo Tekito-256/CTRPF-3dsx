@@ -9,7 +9,8 @@ namespace CTRPluginFramework
 
     bool    System::IsNew3DS(void)
     {
-        return (SystemImpl::IsNew3DS);
+        //return (SystemImpl::IsNew3DS);
+        return true;
     }
 
     LanguageId  System::GetSystemLanguage(void)

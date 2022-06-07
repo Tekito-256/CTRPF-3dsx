@@ -17,6 +17,7 @@
 #include "CTRPluginFrameworkImpl/Preferences.hpp"
 #include "CTRPluginFrameworkImpl/Menu/PluginMenuImpl.hpp"
 #include "CTRPluginFrameworkImpl/System/Screenshot.hpp"
+#include "CTRPluginFrameworkImpl/System/Services/Gsp.hpp"
 
 #define THREADVARS_MAGIC  0x21545624 // !TV$
 // Thanks to Luma3DS custom mapping, we have a direct access to those
@@ -93,28 +94,10 @@ namespace CTRPluginFramework
     {
         RecursiveLock_Init(&RecLock);
 
-        // Init frame event
         LightEvent_Init(&OnNewFrameEvent, RESET_STICKY);
         LightEvent_Init(&OnFramePaused, RESET_STICKY);
         LightEvent_Init(&OnFrameResume, RESET_STICKY);
         IsFramePaused = false;
-
-        const u64 titlesNeedWritePrevFB[] =
-        {
-            0x0004000000101200ULL, // Puyo Puyo Tetris
-            0x0004000000197500ULL, // Puyo Puyo Chronicle
-            0x0004000000056600ULL, // Puyo Puyo!! 20th Anniversary
-        };
-        u64 titleID = Process::GetTitleID();
-
-        for (u32 i = 0; i < sizeof(titlesNeedWritePrevFB) / sizeof(u64); i++)
-        {
-            if (titleID == titlesNeedWritePrevFB[i])
-            {
-                WritesToPrevFB = true;
-                break;
-            }
-        }
 
         InstallOSD();
     }
@@ -310,6 +293,7 @@ namespace CTRPluginFramework
         {
             u32 newAddr = PA_FROM_VA(addr);
             ret = (newAddr & (1 << 31)) ? newAddr : 0;
+            ret = addr;
         }
 
         if (addr < 0x01000000 || addr > 0x40000000) return 0;
@@ -330,36 +314,12 @@ namespace CTRPluginFramework
         if (Screenshot::OSDCallback(isBottom, addr, addrB, stride, format))
             return;
 
-        /*if (!drawFps && !DrawSaveIcon && !MessColors
-            && Callbacks.empty() && Notifications.empty())
-            return; */
-
-        // Convert to actual addresses and check validity
-        if (WritesToPrevFB)
-        {
-            // TO DO: This is a very hacky fix! Research why this actually happens
-            // From my research, looks like puyo puyo games either re-render
-            // or do some post-processing to the FB after CTRPF writes to them,
-            // which causes the changes to be overwritten.
-            // As a hacky solution, we actually draw to the FB that's currently
-            // being displayed. This causes some artifacts such as flickering
-            // but is better than nothing. /shrug
-            previousFBAddr[isBottom][swap ? 1 : 0][0] = addr;
-            previousFBAddr[isBottom][swap ? 1 : 0][1] = addrB;
-
-            addr = previousFBAddr[isBottom][swap ? 0 : 1][0];
-            addrB = previousFBAddr[isBottom][swap ? 0 : 1][1];
-        }
         addr = (void*)GetBuffer((u32)addr);
         if (!isBottom)
             addrB = (void*)GetBuffer((u32)addrB);
 
         if (!addr)
             return;
-
-        // TODO: remove
-        // if (MessColors)
-        //    MessColor((u32)addr, stride, format);
 
         if (!isBottom)
         {

@@ -87,6 +87,13 @@ namespace CTRPluginFramework
         static void     WaitFramePaused(void);
         static void     ResumeFrame(const u32 nbFrames = 0);
 
+        static inline void Swap()
+        {
+          gfxFlushBuffers();
+          gfxSwapBuffers();
+          gspWaitForVBlank();
+        }
+
     private:
         friend class PluginMenu;
         friend class OSD;

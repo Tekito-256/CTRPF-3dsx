@@ -195,6 +195,7 @@ namespace CTRPluginFramework
         // Main loop
         while (_pluginRun)
         {
+
             // Check Event
             eventList.clear();
             while ((_isOpen && openManager.PollEvent(event)) || (!_isOpen && closedManager.PollEvent(event)) || _forceOpen)
@@ -232,7 +233,7 @@ namespace CTRPluginFramework
                         if (continueOpening)
                         {
                             SoundEngine::PlayMenuSound(SoundEngine::Event::ACCEPT);
-                            ProcessImpl::Pause(true);
+                            //ProcessImpl::Pause(true);
 
                             _aboutToOpen = _isOpen = true;
                             closedManager.Clear();
@@ -293,8 +294,12 @@ namespace CTRPluginFramework
                         mode = 0;
                 }
                 _aboutToOpen = false;
+
+                //printf("Menu handled!\n");
                 // End frame
                 Renderer::EndFrame(shouldClose);
+
+                //printf("frame finished!\n");
 
             __skip:
                 if (OnFirstOpening != nullptr)
@@ -330,9 +335,12 @@ namespace CTRPluginFramework
             }
             else // menu is closed
             {
-                if (SyncOnFrame && !ProcessImpl::IsPaused)
-                    LightEvent_Wait(&OSDImpl::OnNewFrameEvent);
+                /*if (SyncOnFrame && !ProcessImpl::IsPaused)
+                    LightEvent_Wait(&OSDImpl::OnNewFrameEvent);*/
                 //Sleep(Milliseconds(16));
+
+                memset(gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 255, 400 * 240 * 3);
+                memset(gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL), 255, 320 * 240 * 3);
 
                 if (SystemImpl::Status())
                 {
@@ -345,6 +353,7 @@ namespace CTRPluginFramework
                     // Lock the AR & execute codes before releasing it
                     PluginMenuExecuteLoop::ExecuteAR();
                 }
+
 
                 // Remove callbacks in the trash bin
                 if (_callbacksTrashBin.size())
@@ -380,6 +389,10 @@ namespace CTRPluginFramework
 
                 if (_wasOpened)
                     _wasOpened = false;
+
+                OSDImpl::MainCallback(false, 0, gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), gfxGetFramebuffer(GFX_TOP, GFX_RIGHT, NULL, NULL), 720, gfxGetScreenFormat(GFX_TOP), 0);
+                OSDImpl::MainCallback(true, 0, gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL), nullptr, 720, gfxGetScreenFormat(GFX_BOTTOM), 0);
+                OSDImpl::Swap();
             }
         }
 

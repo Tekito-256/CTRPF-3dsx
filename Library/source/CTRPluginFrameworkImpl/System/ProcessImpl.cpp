@@ -104,7 +104,7 @@ namespace CTRPluginFramework
             return;
 
         Status |= Paused;
-        if (Process::OnPauseResume) Process::OnPauseResume(true);
+        /*if (Process::OnPauseResume) Process::OnPauseResume(true);
 
         // Wait for the frame to be paused
         OSDImpl::WaitFramePaused();
@@ -116,7 +116,7 @@ namespace CTRPluginFramework
         OSDImpl::UpdateScreens();
 
         // Update memregions
-        UpdateMemRegions();
+        UpdateMemRegions();*/
     }
 
     void    ProcessImpl::Play(bool forced)
@@ -133,14 +133,14 @@ namespace CTRPluginFramework
             IsPaused = 0;
 
         // Resume frame
-        if (!IsPaused)
+        /*if (!IsPaused)
         {
             Status &= ~Paused;
             if (Process::OnPauseResume) Process::OnPauseResume(false);
             ScreenImpl::Top->Release();
             ScreenImpl::Bottom->Release();
             OSDImpl::ResumeFrame();
-        }
+        }*/
     }
 
     bool     ProcessImpl::PatchProcess(u32 addr, u8 *patch, u32 length, u8 *original)

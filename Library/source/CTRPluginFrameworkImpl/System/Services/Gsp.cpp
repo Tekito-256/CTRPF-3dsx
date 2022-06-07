@@ -542,25 +542,32 @@ namespace Services
 
         void    WaitForVBlank(void)
         {
-            ClearInterrupts();
-            LightEvent_Clear(&VBlank0Event);
-            LightEvent_Wait(&VBlank0Event);
+            //ClearInterrupts();
+            //LightEvent_Clear(&VBlank0Event);
+            //LightEvent_Wait(&VBlank0Event);
+
+            gspWaitForVBlank0();
         }
 
         void    WaitForVBlank1(void)
         {
-            ClearInterrupts();
-            LightEvent_Clear(&VBlank1Event);
-            LightEvent_Wait(&VBlank1Event);
+            //ClearInterrupts();
+            //LightEvent_Clear(&VBlank1Event);
+            //LightEvent_Wait(&VBlank1Event);
+
+            gspWaitForVBlank1();
         }
 
         void    WaitForVBlankBoth(void)
         {
-            ClearInterrupts();
-            LightEvent_Clear(&VBlank0Event);
+            //ClearInterrupts();
+            /*LightEvent_Clear(&VBlank0Event);
             LightEvent_Clear(&VBlank1Event);
             LightEvent_Wait(&VBlank0Event);
-            LightEvent_Wait(&VBlank1Event);
+            LightEvent_Wait(&VBlank1Event);*/
+
+            gspWaitForVBlank0();
+            gspWaitForVBlank1();
         }
 
         void    SwapBuffer(int screen)
