@@ -104,6 +104,9 @@ namespace CTRPluginFramework
             return;
 
         Status |= Paused;
+
+        OSDImpl::UpdateScreens();
+
         /*if (Process::OnPauseResume) Process::OnPauseResume(true);
 
         // Wait for the frame to be paused

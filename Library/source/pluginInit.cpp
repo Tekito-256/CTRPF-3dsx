@@ -238,7 +238,7 @@ namespace CTRPluginFramework
         settings.ThreadPriority = 0x30;
         settings.AllowActionReplay = true;
         settings.AllowSearchEngine = true;
-        settings.WaitTimeToBoot = Seconds(1.f);
+        settings.WaitTimeToBoot = Seconds(0.f);
         settings.TryLoadSDSounds = true;
         settings.CachedDrawMode = true;
 

@@ -233,7 +233,7 @@ namespace CTRPluginFramework
                         if (continueOpening)
                         {
                             SoundEngine::PlayMenuSound(SoundEngine::Event::ACCEPT);
-                            //ProcessImpl::Pause(true);
+                            ProcessImpl::Pause(true);
 
                             _aboutToOpen = _isOpen = true;
                             closedManager.Clear();
