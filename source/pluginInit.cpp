@@ -40,9 +40,6 @@ using namespace CTRPluginFrameworkImpl::Services;
 
 namespace CTRPluginFramework
 {
-    // Threads stacks
-    static u8  keepThreadStack[0x1000] ALIGN(8);
-
     // Some globals
     FS_Archive  _sdmcArchive;
     Handle      g_continueGameEvent = 0;
@@ -541,7 +538,7 @@ int main(int argc, char* argv[])
   memset(gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL), 255, 400 * 240 * 3);
   memset(gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL), 255, 320 * 240 * 3);
   CTRPluginFramework::OSDImpl::Swap();
-  CTRPluginFramework::__entrypoint(NULL);
+  CTRPluginFramework::__entrypoint(0);
   gfxExit();
   return 0;
 }

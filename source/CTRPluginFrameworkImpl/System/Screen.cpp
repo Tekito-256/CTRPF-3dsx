@@ -228,7 +228,7 @@ namespace CTRPluginFramework
 
     void    ScreenImpl::Invalidate(void)
     {
-        u32 size = GetFrameBufferSize();
+        //u32 size = GetFrameBufferSize();
 
         // Invalidate currentBuffer
         //svcInvalidateProcessDataCache(CUR_PROCESS_HANDLE, (u32)GetLeftFrameBuffer(), size);
