@@ -80,7 +80,8 @@ namespace CTRPluginFramework
         TitleId = CodeSet.titleId;
 
         // Create handle for this process
-        svcOpenProcess(&ProcessHandle, ProcessId);
+        //svcOpenProcess(&ProcessHandle, ProcessId);
+        ProcessHandle = CUR_PROCESS_HANDLE;
 
         UpdateMemRegions();
 
